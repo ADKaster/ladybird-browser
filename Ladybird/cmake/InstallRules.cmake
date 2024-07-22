@@ -52,7 +52,7 @@ macro(install_service_lib service)
       endif()
     endif()
 endmacro()
-foreach(service IN LISTS webcontent requestserver websocket webworker)
+foreach(service IN LISTS web_content request_server web_socket web_worker)
     install_service_lib(${service})
 endforeach()
 

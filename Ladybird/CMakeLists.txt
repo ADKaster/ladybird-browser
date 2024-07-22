@@ -88,18 +88,30 @@ target_include_directories(ladybird PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
 target_include_directories(ladybird PRIVATE ${LADYBIRD_SOURCE_DIR}/Userland/)
 target_include_directories(ladybird PRIVATE ${LADYBIRD_SOURCE_DIR}/Userland/Services/)
 
-function(set_helper_process_properties)
-    set(targets ${ARGV})
+if (NOT APPLE AND NOT CMAKE_INSTALL_LIBEXECDIR STREQUAL "libexec")
+    set_source_files_properties(Utilities.cpp PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
+    set_source_files_properties(Utilities.cpp TARGET_DIRECTORY ladybird PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
+endif()
+
+function(set_helper_process_properties target)
     if (APPLE)
         # Store helper processes in the same bundle directory as the main application
-        set_target_properties(${targets} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:ladybird>")
+        if (CMAKE_GENERATOR MATCHES "Xcode")
+            # FIXME: For some reason, doing the simple thing for Xcode results in a duplicate rule to create Ladybird.app/Contents/MacOS
+            # FIXME: If we want to actually publish the app, we'll need to codesign properly... but for now, ad-hoc time
+            add_custom_command(TARGET ${target} POST_BUILD
+                COMMAND "${CMAKE_COMMAND}" -E make_directory "$<TARGET_FILE_DIR:ladybird>"
+                COMMAND "${CMAKE_COMMAND}" -E copy_if_different "$<TARGET_FILE:${target}>" "$<TARGET_FILE_DIR:ladybird>"
+                COMMAND codesign --force --sign - "$<TARGET_FILE_DIR:ladybird>/$<TARGET_FILE_NAME:${target}>"
+            )
+        else()
+            set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "$<TARGET_FILE_DIR:ladybird>")
+        endif()
     else()
-        set_target_properties(${targets} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${IN_BUILD_PREFIX}${CMAKE_INSTALL_LIBEXECDIR}")
+        set_target_properties(${target} PROPERTIES RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/${IN_BUILD_PREFIX}${CMAKE_INSTALL_LIBEXECDIR}")
 
         if (NOT CMAKE_INSTALL_LIBEXECDIR STREQUAL "libexec")
-            set_source_files_properties(Utilities.cpp PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
-            set_source_files_properties(Utilities.cpp TARGET_DIRECTORY ladybird PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
-            set_source_files_properties(Utilities.cpp TARGET_DIRECTORY ${targets} PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
+            set_source_files_properties(Utilities.cpp TARGET_DIRECTORY ${target} PROPERTIES COMPILE_DEFINITIONS LADYBIRD_LIBEXECDIR="${CMAKE_INSTALL_LIBEXECDIR}")
         endif()
     endif()
 endfunction()
@@ -142,9 +154,8 @@ add_dependencies(ladybird ${ladybird_helper_processes})
 add_dependencies(headless-browser ${ladybird_helper_processes})
 add_dependencies(WebDriver ladybird headless-browser)
 
-set_helper_process_properties(${ladybird_helper_processes})
 if (APPLE)
-    set_helper_process_properties(headless-browser WebDriver)
+    set_helper_process_properties(headless-browser)
 endif()
 
 if(NOT CMAKE_SKIP_INSTALL_RULES)
