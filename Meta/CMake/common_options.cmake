@@ -35,6 +35,7 @@ serenity_option(ENABLE_CLANG_PLUGINS_INVALID_FUNCTION_MEMBERS OFF CACHE BOOL "En
 
 serenity_option(ENABLE_GUI_TARGETS ON CACHE BOOL "Enable building GUI targets")
 serenity_option(ENABLE_INSTALL_HEADERS ON CACHE BOOL "Enable installing headers")
+serenity_option(ENABLE_INSTALL_FLATPAK_FILES OFF CACHE BOOL "Enable installing files for Flatpak")
 serenity_option(ENABLE_SWIFT OFF CACHE BOOL "Enable building Swift files")
 
 if (ENABLE_SWIFT)

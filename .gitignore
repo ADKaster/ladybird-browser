@@ -26,6 +26,7 @@ output/
 .vim/
 .exrc
 .helix/
+.flatpak-builder/
 
 # Gradle/AndroidStudio
 .gradle/
