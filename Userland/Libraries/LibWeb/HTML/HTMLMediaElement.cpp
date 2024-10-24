@@ -334,7 +334,7 @@ void HTMLMediaElement::set_duration(double duration)
         paintable->set_needs_display();
 }
 
-WebIDL::ExceptionOr<JS::NonnullGCPtr<JS::Promise>> HTMLMediaElement::play()
+WebIDL::ExceptionOr<JS::NonnullGCPtr<WebIDL::Promise>> HTMLMediaElement::play()
 {
     auto& realm = this->realm();
 
@@ -355,7 +355,7 @@ WebIDL::ExceptionOr<JS::NonnullGCPtr<JS::Promise>> HTMLMediaElement::play()
     TRY(play_element());
 
     // 5. Return promise.
-    return JS::NonnullGCPtr { verify_cast<JS::Promise>(*promise->promise()) };
+    return promise;
 }
 
 // https://html.spec.whatwg.org/multipage/media.html#dom-media-pause
@@ -1045,7 +1045,7 @@ WebIDL::ExceptionOr<void> HTMLMediaElement::fetch_resource(URL::URL const& url_r
             // 5. Otherwise, incrementally read response's body given updateMedia, processEndOfMedia, an empty algorithm, and global.
 
             VERIFY(response->body());
-            auto empty_algorithm = JS::create_heap_function(heap(), [](JS::Value) {});
+            auto empty_algorithm = JS::create_heap_function(heap(), [](JS::Value) { });
 
             // FIXME: We are "fully" reading the response here, rather than "incrementally". Memory concerns aside, this should be okay for now as we are
             //        always setting byteRange to "entire resource". However, we should switch to incremental reads when that is implemented, and then

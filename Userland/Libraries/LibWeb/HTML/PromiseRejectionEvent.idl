@@ -5,11 +5,14 @@
 interface PromiseRejectionEvent : Event {
     constructor(DOMString type, PromiseRejectionEventInit eventInitDict);
 
-    readonly attribute Promise<any> promise;
+    // FIXME: This is a JS::Promise, not a WebIDL::Promise
+    // See https://github.com/whatwg/html/issues/10721
+    readonly attribute object promise;
     readonly attribute any reason;
 };
 
 dictionary PromiseRejectionEventInit : EventInit {
-    required Promise<any> promise;
+    // https://github.com/whatwg/html/issues/10721
+    required object promise;
     any reason;
 };
