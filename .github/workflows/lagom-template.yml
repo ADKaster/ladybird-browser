@@ -56,6 +56,7 @@ jobs:
         with:
           os: ${{ inputs.os_name }}
           arch: 'Lagom'
+          swiftly: ${{ inputs.toolchain == 'SwiftClang' }}
 
       # === PREPARE FOR BUILDING ===
 
@@ -69,6 +70,9 @@ jobs:
             elif ${{ inputs.toolchain == 'GNU' }} ; then
               echo "host_cc=gcc-13" >> "$GITHUB_OUTPUT"
               echo "host_cxx=g++-13" >> "$GITHUB_OUTPUT"
+            elif ${{ inputs.toolchain == 'SwiftClang' }} ; then
+              echo "host_cc=$SWIFTLY_BIN_DIR/clang" >> "$GITHUB_OUTPUT"
+              echo "host_cxx=$SWIFTLY_BIN_DIR/clang++" >> "$GITHUB_OUTPUT"
             fi
           elif ${{ inputs.os_name == 'macOS' }} ; then
             echo "host_cc=$(xcrun --find clang)" >> "$GITHUB_OUTPUT"
@@ -78,6 +82,9 @@ jobs:
           if ${{ inputs.clang_plugins }} ; then
             echo "ccache_key=${{ inputs.fuzzer }}-CLANG_PLUGINS" >> "$GITHUB_OUTPUT"
             echo "cmake_options=-DENABLE_CLANG_PLUGINS=ON" >> "$GITHUB_OUTPUT"
+          elif ${{ inputs.toolchain == 'SwiftClang' }} ; then
+            echo "ccache_key=${{ inputs.fuzzer }}-SWIFT" >> "$GITHUB_OUTPUT"
+            echo "cmake_options=-DENABLE_SWIFT=ON" >> "$GITHUB_OUTPUT"
           else
             echo "ccache_key=${{ inputs.fuzzer }}" >> "$GITHUB_OUTPUT"
             echo "cmake_options=" >> "$GITHUB_OUTPUT"
