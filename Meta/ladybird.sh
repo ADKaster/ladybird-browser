@@ -66,22 +66,25 @@ exit_if_running_as_root "Do not run ladybird.sh as root, your Build directory wi
 CMAKE_ARGS=()
 CMD_ARGS=( "$@" )
 
-if [ "$(uname -s)" = Linux ] && [ "$(uname -m)" = "aarch64" ]; then
-    PKGCONFIG=$(which pkg-config)
-    GN=$(command -v gn || echo "")
-    CMAKE_ARGS+=("-DPKG_CONFIG_EXECUTABLE=$PKGCONFIG")
-    # https://github.com/LadybirdBrowser/ladybird/issues/261
-    if [ "$(getconf PAGESIZE)" != "4096" ]; then
-        if [ -z "$GN" ]; then
-            die "GN not found! Please build GN from source and put it in \$PATH"
-        fi
-    fi
-    cat <<- EOF > Meta/CMake/vcpkg/user-variables.cmake
-set(PKGCONFIG $PKGCONFIG)
-set(GN $GN)
+# FIXME: Avoid this hack once https://github.com/LadybirdBrowser/ladybird/issues/261 is resolved
+assign_linux_arm64_vcpkg_vars() {
+  if [ "$(uname -s)" = Linux ] && [ "$(uname -m)" = "aarch64" ]; then
+      PKGCONFIG=$(which pkg-config)
+      GN=$(command -v gn || echo "")
+      CMAKE_ARGS+=("-DPKG_CONFIG_EXECUTABLE=$PKGCONFIG")
+      if [ "$(getconf PAGESIZE)" != "4096" ]; then
+          if [ -z "$GN" ]; then
+              die "GN not found! Please build GN from source and put it in \$PATH"
+          fi
+      fi
+      cat <<- EOF > "${BUILD_DIR}/user-vcpkg-variables.cmake"
+  set(PKGCONFIG "$PKGCONFIG")
+  if (NOT "$GN" STREQUAL "")
+    set(GN $GN)
+  endif()
 EOF
-
-fi
+  fi
+}
 
 create_build_dir() {
     check_program_version_at_least CMake cmake 3.25 || exit 1
@@ -96,6 +99,8 @@ cmd_with_target() {
     ensure_ladybird_source_dir
 
     BUILD_DIR=$(get_build_dir "$BUILD_PRESET")
+
+    assign_linux_arm64_vcpkg_vars
 
     CMAKE_ARGS+=("-DCMAKE_INSTALL_PREFIX=$LADYBIRD_SOURCE_DIR/Build/ladybird-install-${BUILD_PRESET}")
 
