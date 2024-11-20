@@ -1,0 +1,39 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrew Kaster <andrew@ladybird.org>
+Date: Wed, 20 Nov 2024 11:46:50 -0700
+Subject: [PATCH] CMake: Remove top-level binary/module locations
+
+---
+ CMakeLists.txt                | 5 -----
+ Sources/System/CMakeLists.txt | 2 --
+ 2 files changed, 7 deletions(-)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 2ed4f5d15536f9968e0432a4db50b0482a2feefc..047b0d1d0d1d33fdd20cf802cc3fe39181705f75 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -13,11 +13,6 @@ project(SwiftSystem
+ 
+ list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/modules)
+ 
+-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+-set(CMAKE_Swift_MODULE_DIRECTORY ${CMAKE_BINARY_DIR}/swift)
+-
+ include(SwiftSupport)
+ 
+ add_subdirectory(Sources)
+diff --git a/Sources/System/CMakeLists.txt b/Sources/System/CMakeLists.txt
+index 1f3420a159169ae344dd5ed8bcd77de414db6fef..46d42e355057bef89c28013348aa68338cd53a06 100644
+--- a/Sources/System/CMakeLists.txt
++++ b/Sources/System/CMakeLists.txt
+@@ -19,8 +19,6 @@ add_library(SystemPackage
+   Util.swift
+   Util+StringArray.swift
+   UtilConsumers.swift)
+-set_target_properties(SystemPackage PROPERTIES
+-  INTERFACE_INCLUDE_DIRECTORIES ${CMAKE_Swift_MODULE_DIRECTORY})
+ target_sources(SystemPackage PRIVATE
+   FilePath/FilePath.swift
+   FilePath/FilePathComponents.swift
