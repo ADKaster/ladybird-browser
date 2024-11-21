@@ -1,0 +1,24 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Andrew Kaster <andrew@ladybird.org>
+Date: Thu, 21 Nov 2024 14:12:06 -0700
+Subject: [PATCH] CSystem: Set build and install interfaces on included headers
+
+---
+ Sources/CSystem/CMakeLists.txt | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Sources/CSystem/CMakeLists.txt b/Sources/CSystem/CMakeLists.txt
+index 0f5d8e8a96432481b65294756f2938b368ffa05e..faf730e316d3cee8fb6c4a476294882774e6d72f 100644
+--- a/Sources/CSystem/CMakeLists.txt
++++ b/Sources/CSystem/CMakeLists.txt
+@@ -9,8 +9,8 @@ See https://swift.org/LICENSE.txt for license information
+ 
+ add_library(CSystem INTERFACE)
+ target_include_directories(CSystem INTERFACE
+-  include)
+-
++  "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
++  $<INSTALL_INTERFACE:include/CSystem>)
+ 
+ install(FILES
+   include/CSystemLinux.h
