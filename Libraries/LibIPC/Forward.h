@@ -7,6 +7,7 @@
 #pragma once
 
 #include <AK/Error.h>
+#include <AK/Vector.h>
 
 namespace IPC {
 
@@ -17,10 +18,19 @@ class MessageBuffer;
 class File;
 class Stub;
 
+class TransportSocket;
+class TransportMach;
+
 template<typename T>
 ErrorOr<void> encode(Encoder&, T const&);
 
 template<typename T>
 ErrorOr<T> decode(Decoder&);
+
+using FdSendVector = Vector<int, 1>;
+struct [[nodiscard]] ReadResult {
+    Vector<u8> bytes;
+    Vector<int> fds;
+};
 
 }

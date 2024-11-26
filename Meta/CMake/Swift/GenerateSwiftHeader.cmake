@@ -77,6 +77,7 @@ function(_swift_generate_cxx_header target header)
       -Xcc -Wno-user-defined-literals
       -Xcc -Wno-unknown-warning-option
       -module-name "${ARG_MODULE_NAME}"
+      -enable-experimental-feature Extern
       -cxx-interoperability-mode=default
       -emit-clang-header-path ${header_path}
     COMMENT

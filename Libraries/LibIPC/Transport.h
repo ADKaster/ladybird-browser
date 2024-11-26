@@ -7,6 +7,7 @@
 #pragma once
 
 #include <AK/Platform.h>
+#include <LibIPC/Forward.h>
 
 #if !defined(AK_OS_WINDOWS)
 #    include <LibIPC/TransportSocket.h>
@@ -14,7 +15,10 @@
 
 namespace IPC {
 
-#if !defined(AK_OS_WINDOWS)
+#if defined(ENABLE_MACH_IPC)
+// Mach Ports
+using Transport = TransportMach;
+#elif !defined(AK_OS_WINDOWS)
 // Unix Domain Sockets
 using Transport = TransportSocket;
 #else

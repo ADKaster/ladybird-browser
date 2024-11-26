@@ -99,7 +99,7 @@ ErrorOr<void> TransportSocket::transfer(ReadonlyBytes bytes_to_write, Vector<int
     return {};
 }
 
-TransportSocket::ReadResult TransportSocket::read_as_much_as_possible_without_blocking(Function<void()> schedule_shutdown)
+ReadResult TransportSocket::read_as_much_as_possible_without_blocking(Function<void()> schedule_shutdown)
 {
     u8 buffer[4096];
 

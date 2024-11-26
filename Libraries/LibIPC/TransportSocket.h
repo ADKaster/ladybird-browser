@@ -26,10 +26,6 @@ public:
 
     ErrorOr<void> transfer(ReadonlyBytes, Vector<int, 1> const& unowned_fds);
 
-    struct [[nodiscard]] ReadResult {
-        Vector<u8> bytes;
-        Vector<int> fds;
-    };
     ReadResult read_as_much_as_possible_without_blocking(Function<void()> schedule_shutdown);
 
     // Obnoxious name to make it clear that this is a dangerous operation.

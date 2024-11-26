@@ -6,6 +6,9 @@
 
 #include <AK/Checked.h>
 #include <LibIPC/Message.h>
+#if defined(ENABLE_MACH_IPC)
+#    include <LibIPC-Swift.h>
+#endif
 
 namespace IPC {
 
