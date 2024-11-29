@@ -541,6 +541,10 @@ if (BUILD_TESTING)
         lagom_test(../../Tests/LibCore/TestLibCorePromise.cpp LIBS LibThreading)
     endif()
 
+    if (APPLE)
+        lagom_test(../../Tests/LibCore/TestMachPort.cpp)
+    endif()
+
     lagom_test(../../Tests/LibCore/TestLibCoreDateTime.cpp LIBS LibUnicode)
 
     # RegexLibC test POSIX <regex.h> and contains many Serenity extensions

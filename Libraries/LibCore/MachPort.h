@@ -70,6 +70,9 @@ public:
     // https://opensource.apple.com/source/launchd/launchd-842.92.1/liblaunch/bootstrap.h.auto.html
     static ErrorOr<MachPort> look_up_from_bootstrap_server(ByteString const& service_name);
     ErrorOr<void> register_with_bootstrap_server(ByteString const& service_name);
+
+    static ErrorOr<MachPort> from_fd(int fd);
+    ErrorOr<int> release_to_fd();
 #endif
 
     // FIXME: mach_msg wrapper? For now just let the owner poke into the internals

@@ -5,6 +5,7 @@
  */
 
 #include <AK/ByteString.h>
+#include <AK/Error.h>
 #include <AK/Format.h>
 #include <LibCore/MachPort.h>
 
@@ -17,6 +18,13 @@ extern "C" {
 
 #if defined(AK_OS_MACOS)
 #    include <bootstrap.h>
+
+// defined in libsystem_kernel.dylib
+extern "C" {
+int fileport_makeport(int fd, mach_port_t* port);
+int fileport_makefd(mach_port_t port);
+}
+
 #endif
 
 namespace Core {
@@ -174,6 +182,28 @@ ErrorOr<MachPort> MachPort::look_up_from_bootstrap_server(ByteString const& serv
         return bootstrap_error_to_error(ret);
     }
     return MachPort(PortRight::Send, port);
+}
+
+ErrorOr<MachPort> MachPort::from_fd(int fd)
+{
+    mach_port_t port = MACH_PORT_NULL;
+    auto const ret = fileport_makeport(fd, &port);
+    if (ret != KERN_SUCCESS) {
+        return Error::from_errno(errno);
+    }
+    return MachPort(PortRight::Send, port);
+}
+
+ErrorOr<int> MachPort::release_to_fd()
+{
+    auto const ret = fileport_makefd(m_port);
+    if (ret < 0) {
+        return Error::from_errno(errno);
+    }
+    // The kernel will release the send right
+    m_port = MACH_PORT_NULL;
+    m_right = PortRight::DeadName;
+    return ret;
 }
 
 #endif

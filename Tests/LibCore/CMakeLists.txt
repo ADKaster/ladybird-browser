@@ -10,6 +10,10 @@ set(TEST_SOURCES
     TestLibCoreStream.cpp
 )
 
+if (APPLE)
+   list(APPEND TEST_SOURCES TestMachPort.cpp)
+endif()
+
 foreach(source IN LISTS TEST_SOURCES)
     serenity_test("${source}" LibCore)
 endforeach()
