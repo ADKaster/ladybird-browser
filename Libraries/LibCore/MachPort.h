@@ -77,6 +77,7 @@ public:
 
     // FIXME: mach_msg wrapper? For now just let the owner poke into the internals
     mach_port_t port() const { return m_port; }
+    PortRight right() const { return m_right; }
 
 private:
     MachPort(PortRight, mach_port_t);

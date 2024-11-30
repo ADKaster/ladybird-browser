@@ -5,7 +5,9 @@ set(SOURCES
     Message.cpp
 )
 
-if (UNIX)
+if (APPLE)
+    list(APPEND SOURCES TransportMach.cpp)
+elseif (UNIX)
     list(APPEND SOURCES TransportSocket.cpp)
 endif()
 
