@@ -9,19 +9,19 @@
 #include <LibGfx/PaintingSurface.h>
 #include <LibWeb/WebGL/OpenGLContext.h>
 
-#ifdef AK_OS_MACOS
-#    include <EGL/egl.h>
-#    include <EGL/eglext.h>
-#    include <EGL/eglext_angle.h>
-#    include <GLES2/gl2.h>
-#    include <GLES2/gl2ext.h>
-#    include <GLES2/gl2ext_angle.h>
-#endif
+// #ifdef AK_OS_MACOS
+#include <EGL/egl.h>
+#include <EGL/eglext.h>
+#include <EGL/eglext_angle.h>
+#include <GLES2/gl2.h>
+#include <GLES2/gl2ext.h>
+#include <GLES2/gl2ext_angle.h>
+// #endif
 
 namespace Web::WebGL {
 
 struct OpenGLContext::Impl {
-#ifdef AK_OS_MACOS
+    // #ifdef AK_OS_MACOS
     EGLDisplay display { nullptr };
     EGLConfig config { nullptr };
     EGLContext context { nullptr };
@@ -29,7 +29,7 @@ struct OpenGLContext::Impl {
 
     GLuint framebuffer { 0 };
     GLuint depth_buffer { 0 };
-#endif
+    // #endif
 };
 
 OpenGLContext::OpenGLContext(NonnullRefPtr<Gfx::SkiaBackendContext> skia_backend_context, Impl impl)
@@ -40,16 +40,16 @@ OpenGLContext::OpenGLContext(NonnullRefPtr<Gfx::SkiaBackendContext> skia_backend
 
 OpenGLContext::~OpenGLContext()
 {
-#ifdef AK_OS_MACOS
+    // #ifdef AK_OS_MACOS
     eglMakeCurrent(m_impl->display, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
     glDeleteFramebuffers(1, &m_impl->framebuffer);
     glDeleteRenderbuffers(1, &m_impl->depth_buffer);
     eglDestroyContext(m_impl->display, m_impl->context);
     eglDestroySurface(m_impl->display, m_impl->surface);
-#endif
+    // #endif
 }
 
-#ifdef AK_OS_MACOS
+// #ifdef AK_OS_MACOS
 static EGLConfig get_egl_config(EGLDisplay display)
 {
     EGLint const config_attribs[] = {
@@ -72,11 +72,11 @@ static EGLConfig get_egl_config(EGLDisplay display)
     eglChooseConfig(display, config_attribs, configs.data(), number_of_configs, &number_of_configs);
     return configs[0];
 }
-#endif
+// #endif
 
 OwnPtr<OpenGLContext> OpenGLContext::create(NonnullRefPtr<Gfx::SkiaBackendContext> skia_backend_context)
 {
-#ifdef AK_OS_MACOS
+    // #ifdef AK_OS_MACOS
     EGLDisplay display = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (display == EGL_NO_DISPLAY) {
         dbgln("Failed to get EGL display");
@@ -102,10 +102,10 @@ OwnPtr<OpenGLContext> OpenGLContext::create(NonnullRefPtr<Gfx::SkiaBackendContex
     }
 
     return make<OpenGLContext>(skia_backend_context, Impl { .display = display, .config = config, .context = context });
-#else
-    (void)skia_backend_context;
-    return nullptr;
-#endif
+    // #else
+    //     (void)skia_backend_context;
+    //     return nullptr;
+    // #endif
 }
 
 void OpenGLContext::notify_content_will_change()
@@ -193,10 +193,10 @@ void OpenGLContext::set_size(Gfx::IntSize const& size)
 
 void OpenGLContext::make_current()
 {
-#ifdef AK_OS_MACOS
+    // #ifdef AK_OS_MACOS
     allocate_painting_surface_if_needed();
     eglMakeCurrent(m_impl->display, m_impl->surface, m_impl->surface, m_impl->context);
-#endif
+    // #endif
 }
 
 RefPtr<Gfx::PaintingSurface> OpenGLContext::surface()
