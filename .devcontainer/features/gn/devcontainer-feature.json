@@ -1,0 +1,14 @@
+{
+    "name": "Add the GN build system",
+    "id": "gn",
+    "version": "1.0.0",
+    "description": "Install gn globally from source",
+    "installsAfter": [ "../features/ladybird" ],
+    "options": {
+        "gn_revision": {
+            "type": "string",
+            "default": "fae280eabe5d31accc53100137459ece19a7a295",
+            "description": "Select the gn revision to build"
+        }
+    }
+}

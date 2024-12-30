@@ -1,0 +1,37 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+  "name": "Alpine CI",
+  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
+  "build": {
+    "context": ".",
+    "dockerfile": "Dockerfile",
+    "args": {
+      "VERSION": "${localEnv:VERSION:3.21}"
+    }
+  },
+
+  // Features to add to the dev container. More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {},
+    "../features/gn" : {}, // gn on alpine conflicts with ninja-is-really-ninja
+    "../features/ladybird" : {
+      "distro": "alpine"
+    }
+  },
+
+  "containerEnv": {
+    "VCPKG_FORCE_SYSTEM_BINARIES": "1",
+    "USE_VCPKG_MUSL": "1"
+  },
+
+  // Use 'forwardPorts' to make a list of ports inside the container available locally.
+  // "forwardPorts": [],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  // "postCreateCommand": "uname -a",
+
+  // Configure tool-specific properties.
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "vscode"
+}

@@ -298,8 +298,12 @@ static void generate_get_buffer_parameter(SourceGenerator& generator)
 
 static void generate_get_internal_format_parameter(SourceGenerator& generator)
 {
-    generator.append(R"~~~(
+    generator.append(
+        R"~~~(
     switch (pname) {
+)~~~"
+#if 0
+R"~~~(
     case GL_SAMPLES: {
         GLint num_sample_counts { 0 };
         glGetInternalformativ(target, internalformat, GL_NUM_SAMPLE_COUNTS, 1, &num_sample_counts);
@@ -307,8 +311,12 @@ static void generate_get_internal_format_parameter(SourceGenerator& generator)
         glGetInternalformativ(target, internalformat, GL_SAMPLES, num_sample_counts, reinterpret_cast<GLint*>(samples_buffer.data()));
         auto array_buffer = JS::ArrayBuffer::create(m_realm, move(samples_buffer));
         return JS::Int32Array::create(m_realm, num_sample_counts, array_buffer);
-    }
+    })~~~"
+#endif
+        R"~~~(
     default:
+        (void)target;
+        (void)internalformat;
         dbgln("Unknown WebGL internal format parameter name: {:x}", pname);
         set_error(GL_INVALID_ENUM);
         return JS::js_null();

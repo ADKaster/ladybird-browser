@@ -169,9 +169,12 @@ Optional<Vector<String>> WebGLRenderingContext::get_supported_extensions()
 
 JS::Object* WebGLRenderingContext::get_extension(String const& name)
 {
+#if 0
     if (name == "ANGLE_instanced_arrays"sv) {
         return MUST(ANGLEInstancedArrays::create(realm()));
     }
+#endif
+    (void)name;
     return nullptr;
 }
 

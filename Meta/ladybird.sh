@@ -66,7 +66,7 @@ exit_if_running_as_root "Do not run ladybird.sh as root, your Build directory wi
 CMAKE_ARGS=()
 CMD_ARGS=( "$@" )
 
-if [ "$(uname -s)" = Linux ] && [ "$(uname -m)" = "aarch64" ]; then
+if [ "$(uname -s)" = Linux ] && [ "$(uname -m)" = "aarch64" ] || [ "$USE_VCPKG_MUSL" = "1" ]; then
     PKGCONFIG=$(which pkg-config)
     GN=$(command -v gn || echo "")
     CMAKE_ARGS+=("-DPKG_CONFIG_EXECUTABLE=$PKGCONFIG")
