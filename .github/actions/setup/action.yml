@@ -40,8 +40,8 @@ runs:
         sudo update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 100
         sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 100
 
-        // FIXME: https://github.com/WebAssembly/wabt/issues/2533
-        //   wabt doesn't have binary releases for arm64 Linux
+        # FIXME: https://github.com/WebAssembly/wabt/issues/2533
+        #        wabt doesn't have binary releases for arm64 Linux
         wget https://github.com/WebAssembly/wabt/releases/download/1.0.35/wabt-1.0.35-ubuntu-20.04.tar.gz
         tar -xzf ./wabt-1.0.35-ubuntu-20.04.tar.gz
         rm ./wabt-1.0.35-ubuntu-20.04.tar.gz

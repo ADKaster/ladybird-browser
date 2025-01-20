@@ -83,8 +83,8 @@ jobs:
           else
             echo "ccache_key=${{ inputs.build_preset }}" >> "$GITHUB_OUTPUT"
             if ${{ inputs.os_name == 'Linux' && inputs.arch == 'arm64' }} ; then
-                // FIXME: https://github.com/WebAssembly/wabt/issues/2533
-                //   wabt doesn't have binary releases for arm64 Linux
+                # FIXME: https://github.com/WebAssembly/wabt/issues/2533
+                #        wabt doesn't have binary releases for arm64 Linux
                 echo "cmake_options=" >> "$GITHUB_OUTPUT"
             else
               echo "cmake_options=-DINCLUDE_WASM_SPEC_TESTS=ON -DWASM_SPEC_TEST_SKIP_FORMATTING=ON" >> "$GITHUB_OUTPUT"
