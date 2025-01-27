@@ -42,8 +42,13 @@ void WebSocket::start()
     m_impl->on_connected = [this] {
         if (m_state != WebSocket::InternalState::EstablishingProtocolConnection)
             return;
-        set_state(WebSocket::InternalState::SendingClientHandshake);
-        send_client_handshake();
+        if (m_impl->handshake_complete_when_connected()) {
+            set_state(WebSocket::InternalState::Open);
+            notify_open();
+        } else {
+            set_state(WebSocket::InternalState::SendingClientHandshake);
+            send_client_handshake();
+        }
         drain_read();
     };
     m_impl->on_ready_to_read = [this] {
@@ -534,8 +539,13 @@ void WebSocket::send_frame(WebSocket::OpCode op_code, ReadonlyBytes payload, boo
 {
     VERIFY(m_impl);
     VERIFY(m_state == WebSocket::InternalState::Open);
+
+    ByteBuffer buf = MUST(ByteBuffer::create_uninitialized(1 + 9 + 4 + payload.size()));
+    size_t offset = 0;
+
     u8 frame_head[1] = { (u8)((is_final ? 0x80 : 0x00) | ((u8)(op_code) & 0xf)) };
-    m_impl->send(ReadonlyBytes(frame_head, 1));
+    buf.overwrite(offset, frame_head, 1);
+    offset += 1;
     // Section 5.1 : a client MUST mask all frames that it sends to the server
     bool has_mask = true;
     // FIXME: If the payload has a size > size_t max on a 32-bit platform, we could
@@ -555,7 +565,8 @@ void WebSocket::send_frame(WebSocket::OpCode op_code, ReadonlyBytes payload, boo
                 (u8)((payload.size() >> 8) & 0xff),
                 (u8)((payload.size() >> 0) & 0xff),
             };
-            m_impl->send(ReadonlyBytes(payload_length, 9));
+            buf.overwrite(offset, payload_length, 9);
+            offset += 9;
         } else {
             u8 payload_length[9] = {
                 (u8)((has_mask ? 0x80 : 0x00) | 127),
@@ -568,7 +579,8 @@ void WebSocket::send_frame(WebSocket::OpCode op_code, ReadonlyBytes payload, boo
                 (u8)((payload.size() >> 8) & 0xff),
                 (u8)((payload.size() >> 0) & 0xff),
             };
-            m_impl->send(ReadonlyBytes(payload_length, 9));
+            buf.overwrite(offset, payload_length, 9);
+            offset += 9;
         }
     } else if (payload.size() >= 126) {
         // Send (the 'mask' flag + 126) + the 2-byte payload length
@@ -577,13 +589,15 @@ void WebSocket::send_frame(WebSocket::OpCode op_code, ReadonlyBytes payload, boo
             (u8)((payload.size() >> 8) & 0xff),
             (u8)((payload.size() >> 0) & 0xff),
         };
-        m_impl->send(ReadonlyBytes(payload_length, 3));
+        buf.overwrite(offset, payload_length, 3);
+        offset += 3;
     } else {
         // Send the mask flag + the payload in a single byte
         u8 payload_length[1] = {
             (u8)((has_mask ? 0x80 : 0x00) | (u8)(payload.size() & 0x7f)),
         };
-        m_impl->send(ReadonlyBytes(payload_length, 1));
+        buf.overwrite(offset, payload_length, 1);
+        offset += 1;
     }
     if (has_mask) {
         // Section 10.3 :
@@ -591,22 +605,22 @@ void WebSocket::send_frame(WebSocket::OpCode op_code, ReadonlyBytes payload, boo
         // > that cannot be predicted by end applications that provide data
         u8 masking_key[4];
         Crypto::fill_with_secure_random(masking_key);
-        m_impl->send(ReadonlyBytes(masking_key, 4));
+        buf.overwrite(offset, masking_key, 4);
+        offset += 4;
         // don't try to send empty payload
         if (payload.size() == 0)
             return;
         // Mask the payload
-        auto buffer_result = ByteBuffer::create_uninitialized(payload.size());
-        if (!buffer_result.is_error()) {
-            auto& masked_payload = buffer_result.value();
-            for (size_t i = 0; i < payload.size(); ++i) {
-                masked_payload[i] = payload[i] ^ (masking_key[i % 4]);
-            }
-            m_impl->send(masked_payload);
+        auto masked_payload = buf.span().slice(offset, payload.size());
+        for (size_t i = 0; i < payload.size(); ++i) {
+            masked_payload[i] = payload[i] ^ (masking_key[i % 4]);
         }
+        offset += payload.size();
     } else if (payload.size() > 0) {
-        m_impl->send(payload);
+        buf.overwrite(offset, payload.data(), payload.size());
+        offset += payload.size();
     }
+    m_impl->send(buf.span().slice(0, offset));
 }
 
 void WebSocket::fatal_error(WebSocket::Error error)
@@ -672,5 +686,4 @@ void WebSocket::set_state(InternalState state)
             on_ready_state_change(ready_state());
     }
 }
-
 }

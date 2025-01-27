@@ -341,7 +341,6 @@ class RefCountedFlag;
 
 namespace Web::Fetch::Infrastructure {
 class Body;
-class ConnectionTimingInfo;
 class FetchAlgorithms;
 class FetchController;
 class FetchParams;
@@ -352,6 +351,7 @@ class IncrementalReadLoopReadRequest;
 class Request;
 class Response;
 
+struct ConnectionTimingInfo;
 struct BodyWithType;
 struct Header;
 }

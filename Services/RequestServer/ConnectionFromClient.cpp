@@ -4,6 +4,8 @@
  * SPDX-License-Identifier: BSD-2-Clause
  */
 
+#include "WebSocketImplCurl.h"
+
 #include <AK/Badge.h>
 #include <AK/IDAllocator.h>
 #include <AK/NonnullOwnPtr.h>
@@ -495,9 +497,22 @@ void ConnectionFromClient::check_active_requests()
         if (msg->msg != CURLMSG_DONE)
             continue;
 
-        ActiveRequest* request = nullptr;
-        auto result = curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &request);
+        void* application_private = nullptr;
+        auto result = curl_easy_getinfo(msg->easy_handle, CURLINFO_PRIVATE, &application_private);
         VERIFY(result == CURLE_OK);
+        VERIFY(application_private != nullptr);
+
+        // FIXME: Come up with a unified way to track websockets and standard fetches instead of this nasty tagged pointer
+        if (reinterpret_cast<uintptr_t>(application_private) & 1) {
+            auto* websocket_impl = reinterpret_cast<WebSocketImplCurl*>(reinterpret_cast<uintptr_t>(application_private) & ~1);
+            if (msg->data.result == CURLE_OK)
+                websocket_impl->did_connect();
+            else
+                websocket_impl->on_connection_error();
+            continue;
+        }
+
+        auto* request = static_cast<ActiveRequest*>(application_private);
 
         if (!request->is_connect_only) {
             request->flush_headers_if_needed();
@@ -621,16 +636,24 @@ void ConnectionFromClient::websocket_connect(i64 websocket_id, URL::URL const& u
 {
     if (!url.is_valid()) {
         dbgln("WebSocket::Connect: Invalid URL requested: '{}'", url);
+        async_websocket_errored(websocket_id, (i32)WebSocket::WebSocket::Error::CouldNotEstablishConnection);
         return;
     }
+
+    // FIXME: Use our DNS resolver to resolve the hostname
 
     WebSocket::ConnectionInfo connection_info(url);
     connection_info.set_origin(origin);
     connection_info.set_protocols(protocols);
     connection_info.set_extensions(extensions);
     connection_info.set_headers(additional_request_headers);
-
+#define USE_CURL_WEBSOCKET
+#ifdef USE_CURL_WEBSOCKET
+    auto impl = WebSocketImplCurl::create(m_curl_multi);
+    auto connection = WebSocket::WebSocket::create(move(connection_info), move(impl));
+#else
     auto connection = WebSocket::WebSocket::create(move(connection_info));
+#endif
     connection->on_open = [this, websocket_id]() {
         async_websocket_connected(websocket_id);
     };
