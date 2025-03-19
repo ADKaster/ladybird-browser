@@ -1,0 +1,10 @@
+# Set build arguments here. See `gn help buildargs`.
+#hqost_cc = "/home/andrew/.local/share/swiftly/toolchains/main-snapshot-2024-09-18/usr/bin/clang"
+#host_cxx = "/home/andrew/.local/share/swiftly/toolchains/main-snapshot-2024-09-18/usr/bin/clang++"
+host_cc = "clang-18"
+host_cxx = "clang++-18"
+is_clang = true
+use_lld = true
+qt_install_headers = "/usr/include/x86_64-linux-gnu/qt6/"
+qt_install_lib = "/usr/lib/x86_64-linux-gnu"
+qt_install_libexec = "/usr/lib/qt6/libexec/"
