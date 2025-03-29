@@ -4,6 +4,9 @@ on:
   # Automatically run at the end of every day.
   schedule:
     - cron: '0 0 * * *'
+  push:
+    branches:
+      - master  
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -12,7 +15,7 @@ concurrency:
 jobs:
   # CI matrix - runs the job in lagom-template.yml with different configurations.
   Lagom:
-    if: github.repository == 'LadybirdBrowser/ladybird'
+    if: github.repository == 'ADKaster/ladybird-browser'
 
     strategy:
       fail-fast: false
@@ -25,26 +28,26 @@ jobs:
         clang_plugins: [false]
 
         include:
-          - os_name: 'Linux'
-            os: ubuntu-24.04
-            arch: 'x86_64'
-            build_preset: 'Distribution_CI'
-            toolchain: 'GNU'
-            clang_plugins: false
+          # - os_name: 'Linux'
+          #   os: ubuntu-24.04
+          #   arch: 'x86_64'
+          #   build_preset: 'Distribution_CI'
+          #   toolchain: 'GNU'
+          #   clang_plugins: false
 
-          - os_name: 'macOS'
-            os: macos-15
-            arch: 'arm64'
-            build_preset: 'Distribution_CI'
-            toolchain: 'Clang'
-            clang_plugins: false
+          # - os_name: 'macOS'
+          #   os: macos-15
+          #   arch: 'arm64'
+          #   build_preset: 'Distribution_CI'
+          #   toolchain: 'Clang'
+          #   clang_plugins: false
 
-          - os_name: 'Linux'
-            os: ubuntu-24.04-arm
-            arch: 'arm64'
-            build_preset: 'Distribution_CI'
-            toolchain: 'Clang'
-            clang_plugins: false
+          # - os_name: 'Linux'
+          #   os: ubuntu-24.04-arm
+          #   arch: 'arm64'
+          #   build_preset: 'Distribution_CI'
+          #   toolchain: 'Clang'
+          #   clang_plugins: false
 
           - os_name: 'Linux'
             os: ubuntu-24.04
