@@ -78,6 +78,7 @@ function(_swift_generate_cxx_header target header)
       -Xcc -Wno-unknown-warning-option
       -module-name "${ARG_MODULE_NAME}"
       -cxx-interoperability-mode=default
+      -enable-library-evolution -enable-experimental-feature AssumeResilientCxxTypes
       -emit-clang-header-path ${header_path}
     COMMENT
       "Generating '${header_path}'"
