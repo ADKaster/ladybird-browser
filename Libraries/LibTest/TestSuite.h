@@ -11,11 +11,11 @@
 #include <AK/Function.h>
 #include <AK/Time.h>
 #include <AK/Vector.h>
+#include <LibTest/Export.h>
 #include <LibTest/Macros.h>
 #include <LibTest/Randomized/RandomnessSource.h>
 #include <LibTest/TestCase.h>
 #include <LibTest/TestResult.h>
-#include <LibTest/Export.h>
 
 namespace Test {
 

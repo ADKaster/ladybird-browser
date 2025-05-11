@@ -33,6 +33,12 @@
 #    define ERRORLN warnln
 #endif
 
+#if defined(AK_OS_WINDOWS)
+#    include <Windows.h>
+//   
+#    include <libloaderapi.h>
+#endif
+
 extern "C" {
 
 #if defined(AK_HAS_STD_STACKTRACE)
@@ -114,8 +120,35 @@ void ak_trap(void)
     __builtin_trap();
 }
 
-void ak_verification_failed(char const* message)
+#if !defined(AK_OS_WINDOWS)
+[[gnu::weak]] void ak_assertion_handler(char const* message);
+#endif
+
+static AssertionHandlerFunc get_custom_assertion_handler()
 {
+#if defined(AK_OS_WINDOWS)
+#    pragma clang diagnostic push
+#    pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
+    // Windows doesn't support weak symbols as nicely as ELF platforms.
+    // Instead, rely on the fact that we only want this to be overridden from
+    // the main executable, and grab it from there if present.
+    HMODULE module = GetModuleHandle(nullptr);
+    if (!module)
+        return nullptr;
+    auto handler = reinterpret_cast<AssertionHandlerFunc>(GetProcAddress(module, "ak_assertion_handler"));
+    FreeLibrary(module);
+    return handler;
+#    pragma clang diagnostic pop
+#else
+return ak_assertion_handler;
+#endif
+}
+
+void ak_verification_failed(const char* message)
+{
+    if (auto handler = get_custom_assertion_handler()) {
+        handler(message);
+    }
     if (ak_colorize_output())
         ERRORLN("\033[31;1mVERIFICATION FAILED\033[0m: {}", message);
     else
@@ -126,6 +159,9 @@ void ak_verification_failed(char const* message)
 
 void ak_assertion_failed(char const* message)
 {
+    if (auto handler = get_custom_assertion_handler()) {
+        handler(message);
+    }
     if (ak_colorize_output())
         ERRORLN("\033[31;1mASSERTION FAILED\033[0m: {}", message);
     else

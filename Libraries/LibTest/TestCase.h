@@ -11,10 +11,10 @@
 #include <AK/Function.h>
 #include <AK/NonnullRefPtr.h>
 #include <AK/RefCounted.h>
+#include <LibTest/Export.h>
 #include <LibTest/Macros.h>
 #include <LibTest/Randomized/RandomnessSource.h>
 #include <LibTest/Randomized/Shrink.h>
-#include <LibTest/Export.h>
 
 namespace Test {
 
@@ -110,6 +110,7 @@ private:
 // Helper to hide implementation of TestSuite from users
 TEST_API void add_test_case_to_suite(NonnullRefPtr<TestCase> const& test_case);
 TEST_API void set_suite_setup_function(Function<void()> setup);
+
 }
 
 #define TEST_SETUP                                   \
