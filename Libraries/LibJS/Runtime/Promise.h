@@ -60,11 +60,11 @@ private:
     void trigger_reactions() const;
 
     // 27.2.6 Properties of Promise Instances, https://tc39.es/ecma262/#sec-properties-of-promise-instances
-    State m_state { State::Pending };                     // [[PromiseState]]
-    Value m_result;                                       // [[PromiseResult]]
-    Vector<GC::Ptr<PromiseReaction>> m_fulfill_reactions; // [[PromiseFulfillReactions]]
-    Vector<GC::Ptr<PromiseReaction>> m_reject_reactions;  // [[PromiseRejectReactions]]
-    bool m_is_handled { false };                          // [[PromiseIsHandled]]
+    State m_state { State::Pending };                           // [[PromiseState]]
+    Value m_result;                                             // [[PromiseResult]]
+    Vector<GC::MemberPtr<PromiseReaction>> m_fulfill_reactions; // [[PromiseFulfillReactions]]
+    Vector<GC::MemberPtr<PromiseReaction>> m_reject_reactions;  // [[PromiseRejectReactions]]
+    bool m_is_handled { false };                                // [[PromiseIsHandled]]
 };
 
 template<>

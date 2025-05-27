@@ -9,52 +9,50 @@
 #include <AK/Format.h>
 #include <AK/Traits.h>
 #include <AK/Types.h>
+#include <AK/Vector.h>
 
 namespace GC {
 
 template<typename T>
-class Ptr;
-
-template<typename T>
-class Ref {
+class RefImpl {
 public:
-    Ref() = delete;
+    RefImpl() = delete;
 
-    Ref(T& ptr)
+    RefImpl(T& ptr)
         : m_ptr(&ptr)
     {
     }
 
     template<typename U>
-    Ref(U& ptr)
+    RefImpl(U& ptr)
     requires(IsConvertible<U*, T*>)
         : m_ptr(&static_cast<T&>(ptr))
     {
     }
 
     template<typename U>
-    Ref(Ref<U> const& other)
+    RefImpl(RefImpl<U> const& other)
     requires(IsConvertible<U*, T*>)
         : m_ptr(other.ptr())
     {
     }
 
     template<typename U>
-    Ref& operator=(Ref<U> const& other)
+    RefImpl& operator=(RefImpl<U> const& other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = static_cast<T*>(other.ptr());
         return *this;
     }
 
-    Ref& operator=(T& other)
+    RefImpl& operator=(T& other)
     {
         m_ptr = &other;
         return *this;
     }
 
     template<typename U>
-    Ref& operator=(U& other)
+    RefImpl& operator=(U& other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = &static_cast<T&>(other);
@@ -76,88 +74,95 @@ private:
 };
 
 template<typename T>
-class Ptr {
+class Ref : public RefImpl<T> {
 public:
-    constexpr Ptr() = default;
+    using RefImpl<T>::RefImpl;
+    using RefImpl<T>::operator=;
+};
 
-    Ptr(T& ptr)
+template<typename T>
+class PtrImpl {
+public:
+    constexpr PtrImpl() = default;
+
+    PtrImpl(T& ptr)
         : m_ptr(&ptr)
     {
     }
 
-    Ptr(T* ptr)
+    PtrImpl(T* ptr)
         : m_ptr(ptr)
     {
     }
 
     template<typename U>
-    Ptr(Ptr<U> const& other)
+    PtrImpl(PtrImpl<U> const& other)
     requires(IsConvertible<U*, T*>)
         : m_ptr(other.ptr())
     {
     }
 
-    Ptr(Ref<T> const& other)
+    PtrImpl(Ref<T> const& other)
         : m_ptr(other.ptr())
     {
     }
 
     template<typename U>
-    Ptr(Ref<U> const& other)
+    PtrImpl(Ref<U> const& other)
     requires(IsConvertible<U*, T*>)
         : m_ptr(other.ptr())
     {
     }
 
-    Ptr(nullptr_t)
+    PtrImpl(nullptr_t)
         : m_ptr(nullptr)
     {
     }
 
     template<typename U>
-    Ptr& operator=(Ptr<U> const& other)
+    PtrImpl& operator=(PtrImpl<U> const& other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = static_cast<T*>(other.ptr());
         return *this;
     }
 
-    Ptr& operator=(Ref<T> const& other)
+    PtrImpl& operator=(Ref<T> const& other)
     {
         m_ptr = other.ptr();
         return *this;
     }
 
     template<typename U>
-    Ptr& operator=(Ref<U> const& other)
+    PtrImpl& operator=(Ref<U> const& other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = static_cast<T*>(other.ptr());
         return *this;
     }
 
-    Ptr& operator=(T& other)
+    PtrImpl& operator=(T& other)
     {
         m_ptr = &other;
         return *this;
     }
 
     template<typename U>
-    Ptr& operator=(U& other)
+    PtrImpl& operator=(U& other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = &static_cast<T&>(other);
         return *this;
     }
 
-    Ptr& operator=(T* other)
+    PtrImpl& operator=(T* other)
     {
         m_ptr = other;
         return *this;
     }
 
     template<typename U>
-    Ptr& operator=(U* other)
+    PtrImpl& operator=(U* other)
     requires(IsConvertible<U*, T*>)
     {
         m_ptr = static_cast<T*>(other);
@@ -187,34 +192,57 @@ private:
     T* m_ptr { nullptr };
 };
 
+template<typename T>
+class Ptr : public PtrImpl<T> {
+public:
+    using PtrImpl<T>::PtrImpl;
+    using PtrImpl<T>::operator=;
+};
+
 // Non-Owning GC::Ptr
 template<typename T>
-using RawPtr = Ptr<T>;
+using RawPtr = PtrImpl<T>;
 
 // Non-Owning Ref
 template<typename T>
-using RawRef = Ref<T>;
+using RawRef = RefImpl<T>;
+
+// Member GC::Ptr, for containers
+template<typename T>
+class MemberPtr : public PtrImpl<T> {
+public:
+    using PtrImpl<T>::PtrImpl;
+    using PtrImpl<T>::operator=;
+};
+
+// Member GC::Ref, for containers
+template<typename T>
+class MemberRef : public RefImpl<T> {
+public:
+    using RefImpl<T>::RefImpl;
+    using RefImpl<T>::operator=;
+};
 
 template<typename T, typename U>
-inline bool operator==(Ptr<T> const& a, Ptr<U> const& b)
+inline bool operator==(PtrImpl<T> const& a, PtrImpl<U> const& b)
 {
     return a.ptr() == b.ptr();
 }
 
 template<typename T, typename U>
-inline bool operator==(Ptr<T> const& a, Ref<U> const& b)
+inline bool operator==(PtrImpl<T> const& a, RefImpl<U> const& b)
 {
     return a.ptr() == b.ptr();
 }
 
 template<typename T, typename U>
-inline bool operator==(Ref<T> const& a, Ref<U> const& b)
+inline bool operator==(RefImpl<T> const& a, RefImpl<U> const& b)
 {
     return a.ptr() == b.ptr();
 }
 
 template<typename T, typename U>
-inline bool operator==(Ref<T> const& a, Ptr<U> const& b)
+inline bool operator==(RefImpl<T> const& a, PtrImpl<U> const& b)
 {
     return a.ptr() == b.ptr();
 }
@@ -262,6 +290,24 @@ struct Formatter<GC::Ref<T>> : Formatter<T const*> {
     {
         return Formatter<T const*>::format(builder, value.ptr());
     }
+};
+
+// Vectors of GC::Ptr<T> and GC::Ref<T> are inherently unsafe.
+// The memory that holds the pointers is not managed by the GC, and thus liable to
+// cause very hard to debug memory safety issues.
+//
+// Instead, use GC::MemberPtr<T> and GC::MemberRef<T> when the vector is a
+// member variable of a GC-managed object, and thus visited via a visit_edges method.
+// Otherwise, Use a RootVector or a ConservativeVector for 'free' vectors.
+//
+template<typename T>
+class Vector<GC::Ptr<T>> {
+    static_assert(DependentFalse<T>, "Use Vector of GC::MemberPtr<T> or RootVector instead");
+};
+
+template<typename T>
+class Vector<GC::Ref<T>> {
+    static_assert(DependentFalse<T>, "Use Vector of GC::MemberRef<T> or RootVector instead");
 };
 
 }

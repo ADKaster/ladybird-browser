@@ -23,6 +23,7 @@
 #include <LibGC/Forward.h>
 #include <LibGC/HeapRoot.h>
 #include <LibGC/Internals.h>
+#include <LibGC/Ptr.h>
 #include <LibGC/Root.h>
 #include <LibGC/RootHashMap.h>
 #include <LibGC/RootVector.h>

@@ -219,7 +219,7 @@ private:
     };
 
     GraphNode* m_node_being_visited { nullptr };
-    Vector<Ref<Cell>> m_work_queue;
+    Vector<MemberRef<Cell>> m_work_queue;
     HashMap<FlatPtr, GraphNode> m_graph;
 
     Heap& m_heap;
