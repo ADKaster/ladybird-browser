@@ -9,27 +9,25 @@
 #include <AK/StringView.h>
 #include <LibCore/Environment.h>
 #include <LibUnicode/TimeZone.h>
+#include <LibUnicode/ICU.h>
+#include <unicode/timezone.h>
 
 class TimeZoneGuard {
 public:
     explicit TimeZoneGuard(StringView time_zone)
-        : m_time_zone(Core::Environment::get("TZ"sv))
+        : m_time_zone(adopt_own(*icu::TimeZone::createDefault()))
     {
-        MUST(Core::Environment::set("TZ"sv, time_zone, Core::Environment::Overwrite::Yes));
         Unicode::clear_system_time_zone_cache();
+        icu::TimeZone::adoptDefault(icu::TimeZone::createTimeZone(Unicode::icu_string(time_zone)));
     }
 
     ~TimeZoneGuard()
     {
-        if (m_time_zone.has_value())
-            MUST(Core::Environment::set("TZ"sv, *m_time_zone, Core::Environment::Overwrite::Yes));
-        else
-            MUST(Core::Environment::unset("TZ"sv));
-        Unicode::clear_system_time_zone_cache();
+        icu::TimeZone::adoptDefault(m_time_zone.leak_ptr());
     }
 
 private:
-    Optional<StringView> m_time_zone;
+    NonnullOwnPtr<icu::TimeZone> m_time_zone;
 };
 
 TEST_CASE(current_time_zone)
@@ -40,7 +38,7 @@ TEST_CASE(current_time_zone)
     }
     {
         TimeZoneGuard guard { "ladybird"sv };
-        EXPECT_EQ(Unicode::current_time_zone(), "UTC"sv);
+        EXPECT_EQ(Unicode::current_time_zone(), "Etc/Unknown"sv);
     }
 }
 

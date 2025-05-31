@@ -12,7 +12,10 @@
 #include <LibJS/Runtime/Date.h>
 #include <LibJS/Runtime/TypedArray.h>
 #include <LibTest/JavaScriptTestRunner.h>
+#include <LibUnicode/ICU.h>
 #include <LibUnicode/TimeZone.h>
+
+#include <unicode/timezone.h>
 
 TEST_ROOT("Libraries/LibJS/Tests");
 
@@ -110,22 +113,34 @@ TESTJS_GLOBAL_FUNCTION(detach_array_buffer, detachArrayBuffer)
 
 TESTJS_GLOBAL_FUNCTION(set_time_zone, setTimeZone)
 {
-    auto current_time_zone = JS::js_null();
+    auto default_time_zone = adopt_own(*icu::TimeZone::createDefault());
 
-    if (auto time_zone = Core::Environment::get("TZ"sv); time_zone.has_value())
-        current_time_zone = JS::PrimitiveString::create(vm, *time_zone);
+    UErrorCode status = U_ZERO_ERROR;
+
+    icu::UnicodeString time_zone_id;
+    default_time_zone->getID(time_zone_id);
+
+    icu::UnicodeString time_zone_name;
+    default_time_zone->getCanonicalID(time_zone_id, time_zone_name, status);
+    VERIFY(!Unicode::icu_failure(status));
+
+    auto current_time_zone = JS::PrimitiveString::create(vm, Unicode::icu_string_to_string(time_zone_name));
 
     if (auto time_zone = vm.argument(0); time_zone.is_null()) {
-        if (auto result = Core::Environment::unset("TZ"sv); result.is_error())
-            return vm.throw_completion<JS::InternalError>(MUST(String::formatted("Could not unset time zone: {}", result.error())));
+        icu::TimeZone::adoptDefault(icu::TimeZone::detectHostTimeZone());
     } else {
-        if (auto result = Core::Environment::set("TZ"sv, TRY(time_zone.to_string(vm)), Core::Environment::Overwrite::Yes); result.is_error())
-            return vm.throw_completion<JS::InternalError>(MUST(String::formatted("Could not set time zone: {}", result.error())));
+        auto caller_time_zone = TRY(time_zone.to_string(vm));
+
+        auto icu_tz = adopt_own(*icu::TimeZone::createTimeZone(Unicode::icu_string(caller_time_zone)));
+        
+        if (*icu_tz == icu::TimeZone::getUnknown() && caller_time_zone != "Etc/Unknown"sv)
+            return vm.throw_completion<JS::InternalError>(MUST(String::formatted("Could not set time zone to {}", caller_time_zone)));
+
+        icu::TimeZone::adoptDefault(icu_tz.leak_ptr());
     }
 
     JS::clear_system_time_zone_cache();
     Unicode::clear_system_time_zone_cache();
-    tzset();
 
     return current_time_zone;
 }

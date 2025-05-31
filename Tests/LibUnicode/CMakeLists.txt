@@ -11,3 +11,6 @@ set(TEST_SOURCES
 foreach(source IN LISTS TEST_SOURCES)
     serenity_test("${source}" LibUnicode LIBS LibUnicode)
 endforeach()
+
+find_package(ICU 76 REQUIRED COMPONENTS data i18n uc)
+target_link_libraries(TestTimeZone PUBLIC ICU::data ICU::i18n ICU::uc)

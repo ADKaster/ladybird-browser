@@ -24,7 +24,8 @@ String current_time_zone()
 
     UErrorCode status = U_ZERO_ERROR;
 
-    auto time_zone = adopt_own_if_nonnull(icu::TimeZone::detectHostTimeZone());
+    auto time_zone = adopt_own_if_nonnull(icu::TimeZone::createDefault());
+
     if (!time_zone)
         return "UTC"_string;
 

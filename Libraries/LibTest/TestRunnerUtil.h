@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <AK/LexicalPath.h>
 #include <AK/Time.h>
 #include <LibCore/DirIterator.h>
 #include <LibFileSystem/FileSystem.h>
@@ -25,7 +26,7 @@ inline void iterate_directory_recursively(ByteString const& directory_path, Call
 
     while (directory_iterator.has_next()) {
         auto name = directory_iterator.next_path();
-        auto full_path = ByteString::formatted("{}/{}", directory_path, name);
+        auto full_path = LexicalPath::join(directory_path, name).string();
 #if defined(AK_OS_WINDOWS)
         bool is_directory = FileSystem::is_directory(full_path);
 #else
