@@ -126,7 +126,7 @@ private:
 
     // https://html.spec.whatwg.org/multipage/webappapis.html#backup-incumbent-settings-object-stack
     // https://whatpr.org/html/9893/webappapis.html#backup-incumbent-realm-stack
-    Vector<GC::Ref<JS::Realm>> m_backup_incumbent_realm_stack;
+    Vector<GC::MemberRef<JS::Realm>> m_backup_incumbent_realm_stack;
 
     // https://html.spec.whatwg.org/multipage/browsing-the-web.html#termination-nesting-level
     size_t m_termination_nesting_level { 0 };

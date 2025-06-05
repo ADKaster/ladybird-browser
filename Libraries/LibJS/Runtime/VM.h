@@ -326,9 +326,9 @@ private:
     // GlobalSymbolRegistry, https://tc39.es/ecma262/#table-globalsymbolregistry-record-fields
     HashMap<String, GC::Ref<Symbol>> m_global_symbol_registry;
 
-    Vector<GC::Ref<GC::Function<ThrowCompletionOr<Value>()>>> m_promise_jobs;
+    Vector<GC::MemberRef<GC::Function<ThrowCompletionOr<Value>()>>> m_promise_jobs;
 
-    Vector<GC::Ptr<FinalizationRegistry>> m_finalization_registry_cleanup_jobs;
+    Vector<GC::MemberPtr<FinalizationRegistry>> m_finalization_registry_cleanup_jobs;
 
     GC::Ptr<PrimitiveString> m_empty_string;
     GC::Ptr<PrimitiveString> m_single_ascii_character_strings[128] {};

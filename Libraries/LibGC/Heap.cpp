@@ -416,7 +416,7 @@ public:
 
 private:
     Heap& m_heap;
-    Vector<Ref<Cell>> m_work_queue;
+    Vector<MemberRef<Cell>> m_work_queue;
     HashTable<HeapBlock*> m_all_live_heap_blocks;
     FlatPtr m_min_block_address;
     FlatPtr m_max_block_address;

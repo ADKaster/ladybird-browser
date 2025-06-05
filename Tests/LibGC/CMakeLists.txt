@@ -1,3 +1,11 @@
+set(TEST_SOURCES
+    TestGCPtr.cpp
+)
+
+foreach(source IN LISTS TEST_SOURCES)
+    serenity_test("${source}" LibGC)
+endforeach()
+
 if (ENABLE_SWIFT)
     find_package(SwiftTesting REQUIRED)
 

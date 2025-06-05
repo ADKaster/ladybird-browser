@@ -151,7 +151,7 @@ private:
     ConservativeVectorBase::List m_conservative_vectors;
     WeakContainer::List m_weak_containers;
 
-    Vector<Ptr<Cell>> m_uprooted_cells;
+    Vector<MemberPtr<Cell>> m_uprooted_cells;
 
     size_t m_gc_deferrals { 0 };
     bool m_should_gc_when_deferral_ends { false };

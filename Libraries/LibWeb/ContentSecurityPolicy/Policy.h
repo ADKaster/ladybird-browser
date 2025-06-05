@@ -42,7 +42,7 @@ public:
     [[nodiscard]] static GC::Ref<PolicyList> parse_a_responses_content_security_policies(GC::Heap&, GC::Ref<Fetch::Infrastructure::Response const> response);
     [[nodiscard]] static GC::Ref<Policy> create_from_serialized_policy(GC::Heap&, SerializedPolicy const&);
 
-    [[nodiscard]] Vector<GC::Ref<Directives::Directive>> const& directives() const { return m_directives; }
+    [[nodiscard]] ReadonlySpan<GC::Ref<Directives::Directive>> directives() const { return to_unowned_span(m_directives); }
     [[nodiscard]] Disposition disposition() const { return m_disposition; }
     [[nodiscard]] Source source() const { return m_source; }
     [[nodiscard]] URL::Origin const& self_origin() const { return m_self_origin; }
@@ -66,7 +66,7 @@ private:
     // https://w3c.github.io/webappsec-csp/#policy-directive-set
     // Each policy has an associated directive set, which is an ordered set of directives that define the policy’s
     // implications when applied.
-    Vector<GC::Ref<Directives::Directive>> m_directives;
+    Vector<GC::MemberRef<Directives::Directive>> m_directives;
 
     // https://w3c.github.io/webappsec-csp/#policy-disposition
     // Each policy has an associated disposition, which is either "enforce" or "report".

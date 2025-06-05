@@ -46,7 +46,7 @@ private:
 
     GC::Ref<HTML::EventLoop> m_event_loop;
 
-    Vector<GC::Ref<HTML::Task>> m_tasks;
+    Vector<GC::MemberRef<HTML::Task>> m_tasks;
 };
 
 }

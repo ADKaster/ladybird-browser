@@ -101,7 +101,7 @@ public:
 
     Vector<Bytecode::UnwindInfo> unwind_contexts;
     Vector<Optional<size_t>> previously_scheduled_jumps;
-    Vector<GC::Ptr<Environment>> saved_lexical_environments;
+    Vector<GC::MemberPtr<Environment>> saved_lexical_environments;
 
 private:
     friend class Bytecode::Interpreter;
