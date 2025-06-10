@@ -11,10 +11,13 @@
       "name": "base",
       "displayName": "Default Config",
       "generator": "Ninja",
+      "binaryDir": "${fileDir}/Build/release",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "SERENITY_CACHE_DIR": "${fileDir}/Build/caches",
         "CMAKE_TOOLCHAIN_FILE": "$env{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake",
-        "VCPKG_INSTALL_OPTIONS": "--no-print-usage"
+        "VCPKG_INSTALL_OPTIONS": "--no-print-usage",
+        "VCPKG_OVERLAY_TRIPLETS": "${fileDir}/Meta/CMake/vcpkg/release-triplets"
       },
       "environment": {
         "LADYBIRD_SOURCE_DIR": "${fileDir}",
@@ -31,11 +34,6 @@
       "hidden": true,
       "name": "unix_base",
       "inherits": "base",
-      "binaryDir": "${fileDir}/Build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "VCPKG_OVERLAY_TRIPLETS": "${fileDir}/Meta/CMake/vcpkg/release-triplets"
-      },
       "condition": {
         "type": "notEquals",
         "lhs": "${hostSystemName}",
@@ -71,12 +69,7 @@
     {
       "name": "Release",
       "inherits": "unix_base",
-      "displayName": "Release Config",
-      "binaryDir": "${fileDir}/Build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "VCPKG_OVERLAY_TRIPLETS": "${fileDir}/Meta/CMake/vcpkg/release-triplets"
-      }
+      "displayName": "Release Config"
     },
     {
       "name": "Debug",
@@ -89,7 +82,6 @@
       }
     },
     {
-      "hidden": false,
       "name": "Windows_Experimental",
       "inherits": "windows_base",
       "displayName": "Windows Experimental Config",
@@ -135,25 +127,17 @@
     },
     {
       "name": "CI",
+      "displayName": "Non-Sanitizer CI Config",
       "inherits": [
         "vcpkg_ci",
-        "base"
-      ],
-      "displayName": "Non-Sanitizer CI Config",
-      "binaryDir": "${fileDir}/Build/release",
-      "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
-        "VCPKG_OVERLAY_TRIPLETS": "${fileDir}/Meta/CMake/vcpkg/release-triplets"
-      }
+        "unix_base"
+      ]
     },
     {
-      "hidden": false,
       "name": "Windows_CI",
       "inherits": "windows_base",
       "displayName": "Windows CI Config",
-      "binaryDir": "${fileDir}/Build/release",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithDebInfo",
         "ENABLE_WINDOWS_CI": "ON"
       }
     },
