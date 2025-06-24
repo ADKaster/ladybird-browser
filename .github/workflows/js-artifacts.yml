@@ -12,7 +12,7 @@ env:
 jobs:
   build-and-package:
     runs-on: ${{ fromJSON(matrix.runner_labels) }}
-    if: github.repository == 'LadybirdBrowser/ladybird'
+    if: github.repository == 'ADKaster/ladybird-browser'
     name: ${{ matrix.os_name }}, ${{ matrix.arch }}
 
     strategy:
@@ -22,20 +22,20 @@ jobs:
         arch: ['x86_64']
         toolchain: ['Clang']
         package_type: ['Linux-x86_64']
-        runner_labels: ['["blacksmith-8vcpu-ubuntu-2404"]']
+        runner_labels: ['["ubuntu-24.04"]']
 
         include:
           - os_name: 'macOS'
             arch: 'arm64'
             toolchain: 'Clang'
             package_type: 'macOS-arm64'
-            runner_labels: '["macos-15", "self-hosted"]'
+            runner_labels: '["macos-15"]'
 
           - os_name: 'Linux'
             arch: 'arm64'
             toolchain: 'Clang'
             package_type: 'Linux-aarch64'
-            runner_labels: '["blacksmith-8vcpu-ubuntu-2404-arm"]'
+            runner_labels: '["ubuntu-24.04-arm"]'
 
     steps:
       - name: Checkout LadybirdBrowser/ladybird
