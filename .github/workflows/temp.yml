@@ -1,0 +1,24 @@
+name: temp.yml
+on:
+  push:
+    branches: [master]
+
+jobs:
+  flatpak:
+    if: github.repository == 'ADKaster/ladybird-browser'
+    name: Flatpak nightly ${{ matrix.arch }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'x86_64' ]
+        runner_labels: [ '["ubuntu-2404"]' ]
+
+        include:
+          - arch: 'arm64'
+            runner_labels: '["ubuntu-2404-arm"]'
+
+    uses: ./.github/workflows/flatpak-template.yml
+    with:
+      arch: ${{ matrix.arch }}
+      runner_labels: ${{ matrix.runner_labels }}
