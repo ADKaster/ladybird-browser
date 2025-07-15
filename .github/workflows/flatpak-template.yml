@@ -15,7 +15,7 @@ jobs:
         runner_labels: [ '["ubuntu-24.04"]' ]
 
         include:
-          - arch: 'arm64'
+          - arch: 'aarch64'
             runner_labels: '["ubuntu-24.04-arm"]'
 
     runs-on: ${{ fromJSON(matrix.runner_labels) }}
