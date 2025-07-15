@@ -1,18 +1,24 @@
-name: Flatpak template
-
+name: Flatpak Nightly Build
 on:
-  workflow_call:
-    inputs:
-      runner_labels:
-        required: true
-        type: string
-      arch:
-        required: true
-        type: string
+  push:
+    branches: [master]
 
 jobs:
-  build-flatpak:
-    runs-on: ${{ fromJSON(inputs.runner_labels) }}
+  flatpak:
+    if: github.repository == 'ADKaster/ladybird-browser'
+    name: Flatpak nightly ${{ matrix.arch }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'x86_64' ]
+        runner_labels: [ '["ubuntu-2404"]' ]
+
+        include:
+          - arch: 'arm64'
+            runner_labels: '["ubuntu-2404-arm"]'
+
+    runs-on: ${{ fromJSON(matrix.runner_labels) }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.9
       options: --privileged
@@ -24,6 +30,6 @@ jobs:
           bundle: Ladybird.flatpak
           manifest-path: Meta/CMake/flatpak/org.ladybird.Ladybird.json
           cache: 'true'
-          arch: ${{ inputs.arch }}
+          arch: ${{ matrix.arch }}
           # Note: default cache key is 'flatpak-builder-${arch}-${sha256(manifestPath)}'
           upload-artifact: 'false'
