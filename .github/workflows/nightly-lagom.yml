@@ -4,6 +4,8 @@ on:
   # Automatically run at the end of every day.
   schedule:
     - cron: '0 0 * * *'
+  push:
+    branches: [master]
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -76,3 +78,22 @@ jobs:
       arch: ${{ matrix.arch }}
       build_preset: ${{ matrix.build_preset }}
       clang_plugins: ${{ matrix.clang_plugins }}
+
+  flatpak:
+    if: github.repository == 'ADKaster/ladybird-browser'
+    name: Flatpak nightly ${{ matrix.arch }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [ 'x86_64' ]
+        runner_labels: [ '["ubuntu-2404"]' ]
+
+        include:
+          - arch: 'arm64'
+            runner_labels: '["ubuntu-2404-arm"]'
+
+    uses: ./.github/workflows/flatpak-template.yml
+    with:
+      arch: ${{ matrix.arch }}
+      runner_labels: ${{ matrix.runner_labels }}
