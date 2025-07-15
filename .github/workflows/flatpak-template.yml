@@ -18,7 +18,7 @@ jobs:
           - arch: 'arm64'
             runner_labels: '["ubuntu-24.04-arm"]'
 
-    runs-on: ubuntu-2404
+    runs-on: ${{ fromJSON(matrix.runner_labels) }}
     container:
       image: ghcr.io/flathub-infra/flatpak-github-actions:kde-6.9
       options: --privileged
