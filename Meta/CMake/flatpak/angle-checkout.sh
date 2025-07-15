@@ -8,3 +8,5 @@ export PATH=$PWD/depot_tools:$PATH
 gclient config https://chromium.googlesource.com/angle/angle < <(yes)
 gclient sync -r chromium/7258 < <(yes)
 gclient runhooks < <(yes)
+
+chmod -R +x third_party/llvm-build/Release+Asserts/bin
