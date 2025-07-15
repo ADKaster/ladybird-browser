@@ -2,10 +2,12 @@
 
 set -e
 
-export PATH=$PWD/depot_tools:$PATH
 cd angle
 
 gn gen out --args='
+    cc="gcc"
+    cxx="g++"
+    is_clang=false
     is_official_build=true
     is_component_build=true
     is_debug=false
@@ -20,6 +22,9 @@ gn gen out --args='
     build_angle_deqp_tests=false
     use_custom_libcxx=false
     use_safe_libstdcxx=true
+    treat_warnings_as_errors=false
+    use_sysroot=false
+    use_siso=false
     chrome_pgo_phase=0
     is_cfi = false
 '

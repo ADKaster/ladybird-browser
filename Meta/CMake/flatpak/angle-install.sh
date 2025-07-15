@@ -2,7 +2,6 @@
 
 set -e
 
-export PATH=$PWD/depot_tools:$PATH
 cd angle
 
 # Headers
@@ -20,7 +19,6 @@ libs=(
   libGLESv2_with_capture.so
   libchrome_zlib.so
   libfeature_support.so
-  libthird_party_abseil-cpp_absl.so
 )
 
 for lib in "${libs[@]}"; do
@@ -41,5 +39,3 @@ cat > "$FLATPAK_DEST/lib/pkgconfig/angle.pc" <<EOF
     Libs: -L\${libdir} -lEGL -lGLESv2
     Cflags: -I\${includedir}/angle
 EOF
-
-git reset --hard origin/main
