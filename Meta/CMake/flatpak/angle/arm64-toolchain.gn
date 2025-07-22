@@ -1,0 +1,22 @@
+import("//build/toolchain/gcc_toolchain.gni")
+
+# This is a copy of the arm64 toolchain from //build/toolchain/linux/BUILD.gn,
+# but without a toolprefix for non-cross builds for arm64 linux.
+gcc_toolchain("arm64") {
+  cc = "gcc"
+  cxx = "g++"
+
+  ar = "ar"
+  ld = cxx
+  readelf = "readelf"
+  nm = "nm"
+
+  toolchain_args = {
+    current_cpu = "arm64"
+    current_os = "linux"
+
+    # remote execution does not support gcc.
+    use_remoteexec = false
+    is_clang = false
+  }
+}
