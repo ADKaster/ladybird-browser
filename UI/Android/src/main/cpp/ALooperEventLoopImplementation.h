@@ -10,6 +10,7 @@
 #include <AK/HashMap.h>
 #include <AK/NonnullOwnPtr.h>
 #include <AK/WeakPtr.h>
+#include <LibCore/Event.h>
 #include <LibCore/EventLoopImplementation.h>
 #include <jni.h>
 
@@ -69,6 +70,8 @@ public:
     virtual size_t pump(PumpMode) override;
     virtual void quit(int) override;
     virtual void wake() override;
+
+    void post_event(Core::EventReceiver&, Core::Event::Type);
 
     virtual bool was_exit_requested() const override { return false; }
 

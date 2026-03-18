@@ -197,9 +197,9 @@ void ALooperEventLoopImplementation::wake()
     ALooper_wake(m_event_loop);
 }
 
-void ALooperEventLoopImplementation::post_event(Core::EventReceiver& receiver, NonnullOwnPtr<Core::Event>&& event)
+void ALooperEventLoopImplementation::post_event(Core::EventReceiver& receiver, Core::Event::Type event_type)
 {
-    m_thread_event_queue.post_event(receiver, move(event));
+    m_thread_event_queue.post_event(&receiver, event_type);
 
     if (&m_thread_event_queue != &Core::ThreadEventQueue::current())
         wake();

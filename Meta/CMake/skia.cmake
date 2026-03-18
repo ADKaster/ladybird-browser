@@ -40,4 +40,5 @@ else()
     set(SKIA_TARGET PkgConfig::skia)
     set_property(TARGET PkgConfig::skia APPEND PROPERTY INTERFACE_COMPILE_DEFINITIONS "SKCMS_DLL")
 endif()
+
 add_library(skia ALIAS ${SKIA_TARGET})

@@ -76,6 +76,14 @@
         "icu"
       ]
     },
+    {
+      "name": "harfbuzz",
+      "platform": "android",
+      "features": [
+        "freetype",
+        "icu"
+      ]
+    },
     "icu",
     {
       "name": "libavif",
@@ -105,7 +113,8 @@
       "features": [
         "anim",
         "libwebpmux",
-        "simd"
+        "simd",
+        "nearlossless"
       ]
     },
     "libxml2",
@@ -210,7 +219,10 @@
       "platform": "android",
       "default-features": false,
       "features": [
-        "vulkan"
+        "vulkan",
+        "freetype",
+        "harfbuzz",
+        "icu"
       ]
     },
     "sqlite3",

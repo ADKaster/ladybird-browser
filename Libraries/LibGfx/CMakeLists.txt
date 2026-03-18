@@ -111,7 +111,7 @@ pkg_check_modules(WOFF2 REQUIRED IMPORTED_TARGET libwoff2dec)
 find_package(JPEG REQUIRED)
 find_package(PNG REQUIRED)
 find_package(LIBAVIF REQUIRED)
-find_package(WebP REQUIRED)
+find_package(WebP CONFIG REQUIRED)
 find_package(harfbuzz REQUIRED)
 
 target_link_libraries(LibGfx PRIVATE PkgConfig::WOFF2 JPEG::JPEG PNG::PNG avif WebP::webp WebP::webpdecoder

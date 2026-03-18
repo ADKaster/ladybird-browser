@@ -9,6 +9,7 @@
 #include <LibGfx/Bitmap.h>
 #include <LibGfx/ImmutableBitmap.h>
 #include <LibGfx/Painter.h>
+#include <LibCore/System.h>
 #include <LibWeb/Crypto/Crypto.h>
 #include <LibWebView/ViewImplementation.h>
 #include <LibWebView/WebContentClient.h>
@@ -53,10 +54,6 @@ void WebViewImplementationNative::initialize_client(WebView::ViewImplementation:
     auto new_client = bind_web_content_client();
 
     m_client_state.client = new_client;
-    m_client_state.client->on_web_content_process_crash = [] {
-        warnln("WebContent crashed!");
-        // FIXME: launch a new client
-    };
 
     m_client_state.client_handle = MUST(Web::Crypto::generate_random_uuid());
     client().async_set_window_handle(0, m_client_state.client_handle);
