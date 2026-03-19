@@ -8,6 +8,10 @@ plugins {
 var buildDir = layout.buildDirectory.get()
 var cacheDir = System.getenv("LADYBIRD_CACHE_DIR") ?: "$buildDir/caches"
 var sourceDir = layout.projectDirectory.dir("../../").toString()
+var sdl3JavaJars = fileTree("$sourceDir/Build/vcpkg/packages") {
+    include("sdl3_arm64-android/share/java/SDL3/SDL3-*.jar")
+    exclude("**/*-sources.jar")
+}
 
 task<Exec>("buildLagomTools") {
     commandLine = listOf("./BuildLagomTools.sh")
@@ -48,7 +52,7 @@ android {
         ndk {
             // Specifies the ABI configurations of your native
             // libraries Gradle should build and package with your app.
-            abiFilters += listOf("x86_64", "arm64-v8a")
+            abiFilters += listOf("arm64-v8a")
         }
     }
 
@@ -82,6 +86,7 @@ android {
 }
 
 dependencies {
+    implementation(files(sdl3JavaJars))
     implementation("androidx.core:core-ktx:1.13.1")
     implementation("androidx.appcompat:appcompat:1.6.1")
     implementation("com.google.android.material:material:1.12.0")

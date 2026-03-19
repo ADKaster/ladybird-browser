@@ -118,6 +118,11 @@ void ALooperEventLoopManager::register_notifier(Core::Notifier& notifier)
 void ALooperEventLoopManager::unregister_notifier(Core::Notifier& notifier)
 {
     EventLoopThreadData::the().notifiers.remove(&notifier);
+
+    // This is being called incorrectly and crashes, not sure why
+    if (!Core::EventLoop::is_running())
+        return;
+
     current_impl().unregister_notifier(notifier);
 }
 
