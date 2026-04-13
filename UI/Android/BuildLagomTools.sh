@@ -40,7 +40,7 @@ cmake -S "${LADYBIRD_SOURCE_DIR}" -B "$BUILD_DIR/lagom-tools" \
     -DINSTALL_LAGOM_TOOLS=ON \
     -DCMAKE_TOOLCHAIN_FILE="$LADYBIRD_SOURCE_DIR/Build/vcpkg/scripts/buildsystems/vcpkg.cmake" \
     -DVCPKG_INSTALL_OPTIONS="--no-print-usage" \
-    -DVCPKG_OVERLAY_TRIPLETS="$LADYBIRD_SOURCE_DIR/Meta/CMake/vcpkg/release-triplets" \
+    -DVCPKG_OVERLAY_TRIPLETS="$LADYBIRD_SOURCE_DIR/Meta/CMake/vcpkg/distribution-triplets" \
     -DVCPKG_ROOT="$LADYBIRD_SOURCE_DIR/Build/vcpkg" \
     -DVCPKG_MANIFEST_DIR="$LADYBIRD_SOURCE_DIR"
 

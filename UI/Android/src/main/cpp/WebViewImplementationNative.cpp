@@ -55,15 +55,16 @@ void WebViewImplementationNative::initialize_client(WebView::ViewImplementation:
 
     m_client_state.client = new_client;
 
-    m_client_state.client_handle = MUST(Web::Crypto::generate_random_uuid());
-    client().async_set_window_handle(0, m_client_state.client_handle);
+    m_client_state.client_handle = Web::Crypto::generate_random_uuid();
+    client().async_set_window_handle(m_client_state.page_index, m_client_state.client_handle);
+    client().async_set_zoom_level(m_client_state.page_index, m_zoom_level);
+    client().async_set_viewport(m_client_state.page_index, viewport_size(), m_device_pixel_ratio, m_is_fullscreen);
+    client().async_set_maximum_frames_per_second(m_client_state.page_index, m_maximum_frames_per_second);
+    client().async_set_system_visibility_state(m_client_state.page_index, m_system_visibility_state);
+    client().async_set_document_cookie_version_buffer(m_client_state.page_index, m_document_cookie_version_buffer);
 
-    client().async_set_viewport(0, viewport_size(), m_device_pixel_ratio, Web::ViewportIsFullscreen::No);
-    client().async_set_zoom_level(0, m_zoom_level);
-
-    set_system_visibility_state(Web::HTML::VisibilityState::Visible);
-
-    // FIXME: update_palette, update system fonts
+    // FIXME: Find a way to include the custom webcontent client in the base class,
+    //        so we don't have to duplicate the async calls here
 }
 
 void WebViewImplementationNative::paint_into_bitmap(void* android_bitmap_raw, AndroidBitmapInfo const& info)
@@ -73,10 +74,27 @@ void WebViewImplementationNative::paint_into_bitmap(void* android_bitmap_raw, An
 
     auto android_bitmap = MUST(Gfx::Bitmap::create_wrapper(to_gfx_bitmap_format(info.format), Gfx::AlphaType::Premultiplied, { info.width, info.height }, info.stride, android_bitmap_raw));
     auto painter = Gfx::Painter::create(android_bitmap);
-    if (auto* bitmap = m_client_state.has_usable_bitmap ? m_client_state.front_bitmap.bitmap.ptr() : m_backup_bitmap.ptr())
-        painter->draw_bitmap(android_bitmap->rect().to_type<float>(), Gfx::ImmutableBitmap::create(MUST(bitmap->clone())), bitmap->rect(), Gfx::ScalingMode::NearestNeighbor, {}, 1.0f, Gfx::CompositingAndBlendingOperator::Copy);
-    else
+
+    Gfx::Bitmap const* bitmap = nullptr;
+    Gfx::IntSize bitmap_size;
+
+    if (m_client_state.has_usable_bitmap) {
+        VERIFY(m_client_state.front_bitmap.shared_image_buffer);
+        bitmap = m_client_state.front_bitmap.shared_image_buffer->bitmap().ptr();
+        bitmap_size = m_client_state.front_bitmap.last_painted_size.to_type<int>();
+    } else if (m_backup_shared_image_buffer) {
+        bitmap = m_backup_shared_image_buffer->bitmap().ptr();
+        bitmap_size = m_backup_bitmap_size.to_type<int>();
+    }
+
+    if (bitmap) {
+        auto source_rect = Gfx::IntRect { { 0, 0 }, bitmap_size };
+        painter->draw_bitmap(android_bitmap->rect().to_type<float>(), Gfx::ImmutableBitmap::create(MUST(bitmap->clone())), source_rect, Gfx::ScalingMode::NearestNeighbor, {}, 1.0f, Gfx::CompositingAndBlendingOperator::Copy);
+        // FIXME: Handle bitmap size being smaller than the widget's width/height, and fill the rest with the base color
+    }
+    else {
         painter->fill_rect(android_bitmap->rect().to_type<float>(), Gfx::Color::Magenta);
+    }
 }
 
 void WebViewImplementationNative::set_viewport_geometry(int w, int h)
